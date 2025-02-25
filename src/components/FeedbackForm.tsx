@@ -19,6 +19,18 @@ export default function FeedbackForm({ portfolioId }: { portfolioId: string }) {
       return;
     }
 
+    // Prüfe, ob User schon Feedback gegeben hat
+    const { data: feedbackGiven, error: feedbackError } = await supabase
+      .from("feedback")
+      .select("id")
+      .eq("user_id", userData.user.id)
+      .limit(1);
+
+    if (feedbackError || !feedbackGiven.length) {
+      setMessage("Gib zuerst Feedback zu einem anderen Portfolio!");
+      return;
+    }
+
     const { error } = await supabase
       .from("feedback")
       .insert({
