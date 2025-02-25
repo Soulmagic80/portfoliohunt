@@ -20,18 +20,15 @@ export default async function PortfoliosPage() {
       {newError ? (
         <p>Fehler: {newError.message}</p>
       ) : (
-<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-  {newPortfolios?.map((p) => (
-    <div key={p.id} className="border p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-      <h2 className="text-xl font-semibold text-gray-800">{p.title}</h2>
-      <p className="text-gray-600 mt-2">{p.description}</p>
-      <p className="mt-2 text-blue-500">{p.upvotes} Upvotes</p>
-      <a href={`/portfolios/${p.id}`} className="mt-4 inline-block text-blue-600 hover:underline">
-        Details ansehen
-      </a>
-    </div>
-  ))}
-</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {newPortfolios?.map((p) => (
+            <div key={p.id} className="border p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+              <h2 className="text-xl font-semibold text-gray-800">{p.title}</h2>
+              <p className="text-gray-600 mt-2">{p.description}</p>
+              <p className="mt-2 text-blue-500">{p.upvotes} Upvotes</p>
+            </div>
+          ))}
+        </div>
       )}
 
       <h1 className="text-3xl font-bold mt-8 mb-4">All Time Ranking</h1>
@@ -39,17 +36,14 @@ export default async function PortfoliosPage() {
         <p>Fehler: {allError.message}</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-  {newPortfolios?.map((p) => (
-    <div key={p.id} className="border p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-      <h2 className="text-xl font-semibold text-gray-800">{p.title}</h2>
-      <p className="text-gray-600 mt-2">{p.description}</p>
-      <p className="mt-2 text-blue-500">{p.upvotes} Upvotes</p>
-      <a href={`/portfolios/${p.id}`} className="mt-4 inline-block text-blue-600 hover:underline">
-        Details ansehen
-      </a>
-    </div>
-  ))}
-</div>
+          {allTimePortfolios?.map((p) => (
+            <div key={p.id} className="border p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+              <h2 className="text-xl font-semibold text-gray-800">{p.title}</h2>
+              <p className="text-gray-600 mt-2">{p.description}</p>
+              <p className="mt-2 text-blue-500">{p.upvotes} Upvotes</p>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

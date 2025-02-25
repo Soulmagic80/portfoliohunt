@@ -3,9 +3,10 @@ import { supabase } from "../lib/supabase";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { User } from "@supabase/supabase-js"; // Typ von Supabase importieren
 
 export default function Navbar() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null); // Typisiert als User oder null
   const router = useRouter();
 
   useEffect(() => {
