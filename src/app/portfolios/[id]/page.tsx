@@ -1,9 +1,8 @@
 import { supabase } from "../../../lib/supabase";
 import FeedbackForm from "../../../components/FeedbackForm";
 import Image from "next/image";
-import { type PageProps } from "next"; // Typ importieren
 
-export default async function PortfolioPage({ params }: PageProps<{ id: string }>) {
+export default async function PortfolioPage({ params }: { params: { id: string } }) {
   const { data: portfolio, error } = await supabase
     .from("portfolios")
     .select("*")
