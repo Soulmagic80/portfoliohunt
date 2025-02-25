@@ -19,7 +19,6 @@ export default function FeedbackForm({ portfolioId }: { portfolioId: string }) {
       return;
     }
 
-    // Prüfe, ob User schon Feedback gegeben hat
     const { data: feedbackGiven, error: feedbackError } = await supabase
       .from("feedback")
       .select("id")

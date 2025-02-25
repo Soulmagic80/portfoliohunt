@@ -1,4 +1,4 @@
-"use client"; // Client-seitig, wegen Formular
+"use client";
 import { supabase } from "../../lib/supabase";
 import { useState } from "react";
 
@@ -36,7 +36,7 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8">
+    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold mb-4">Portfolio hochladen</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input

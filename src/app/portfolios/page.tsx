@@ -1,14 +1,12 @@
 import { supabase } from "../../lib/supabase";
 
 export default async function PortfoliosPage() {
-  // New This Month: Letzte 30 Tage
   const { data: newPortfolios, error: newError } = await supabase
     .from("portfolios")
     .select("*")
     .gte("created_at", new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString())
     .order("upvotes", { ascending: false });
 
-  // All Time Ranking
   const { data: allTimePortfolios, error: allError } = await supabase
     .from("portfolios")
     .select("*")

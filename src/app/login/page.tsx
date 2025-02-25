@@ -19,12 +19,12 @@ export default function LoginPage() {
       setMessage("Fehler: " + error.message);
     } else {
       setMessage("Erfolgreich angemeldet!");
-      router.push("/upload"); // Nach Login zu Upload
+      router.push("/upload");
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8">
+    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold mb-4">Login</h1>
       <form onSubmit={handleLogin} className="space-y-4">
         <input
