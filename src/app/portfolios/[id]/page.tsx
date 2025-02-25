@@ -10,7 +10,7 @@ export default async function PortfolioPage({ params }: { params: { id: string }
     .single();
 
   if (error || !portfolio) {
-    return <div>Portfolio nicht gefunden!</div>;
+    return <div>Portfolio nicht gefunden!!!</div>;
   }
 
   return (
