@@ -1,22 +1,25 @@
-"use client"; // Client-seitig wegen State
+"use client";
 import { supabase } from "../lib/supabase";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { Portfolio } from "../types"; // Typ importieren
 
 export default function Home() {
   const [activeFilter, setActiveFilter] = useState("new"); // "new" oder "all"
-  const [newPortfolios, setNewPortfolios] = useState<any[]>([]);
-  const [allTimePortfolios, setAllTimePortfolios] = useState<any[]>([]);
+  const [newPortfolios, setNewPortfolios] = useState<Portfolio[]>([]); // Portfolio-Typ
+  const [allTimePortfolios, setAllTimePortfolios] = useState<Portfolio[]>([]); // Portfolio-Typ
 
   // Daten von Supabase holen
   useEffect(() => {
     async function fetchPortfolios() {
+      // New This Month: Letzte 30 Tage
       const { data: newData, error: newError } = await supabase
         .from("portfolios")
         .select("*")
         .gte("created_at", new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString())
         .order("created_at", { ascending: false });
 
+      // All Time Ranking
       const { data: allData, error: allError } = await supabase
         .from("portfolios")
         .select("*")
