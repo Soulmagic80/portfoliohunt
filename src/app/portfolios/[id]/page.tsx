@@ -1,5 +1,6 @@
 import { supabase } from "../../../lib/supabase";
 import FeedbackForm from "../../../components/FeedbackForm";
+import Image from "next/image";
 
 export default async function PortfolioPage({ params }: { params: { id: string } }) {
   const { data: portfolio, error } = await supabase
@@ -17,7 +18,13 @@ export default async function PortfolioPage({ params }: { params: { id: string }
       <h1 className="text-3xl font-bold mb-4">{portfolio.title}</h1>
       <p className="mb-4">{portfolio.description}</p>
       {portfolio.image_url && (
-        <img src={portfolio.image_url} alt={portfolio.title} className="w-full h-64 object-cover mb-4" />
+        <Image
+          src={portfolio.image_url}
+          alt={portfolio.title}
+          width={800}
+          height={256}
+          className="w-full h-64 object-cover mb-4"
+        />
       )}
       <p>{portfolio.upvotes} Upvotes</p>
       <FeedbackForm portfolioId={portfolio.id} />
