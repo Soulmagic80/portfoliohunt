@@ -20,30 +20,36 @@ export default async function PortfoliosPage() {
       {newError ? (
         <p>Fehler: {newError.message}</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {newPortfolios?.map((p) => (
-            <div key={p.id} className="border p-4 rounded">
-              <h2 className="text-xl font-semibold">{p.title}</h2>
-              <p>{p.description}</p>
-              <p>{p.upvotes} Upvotes</p>
-            </div>
-          ))}
-        </div>
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+  {newPortfolios?.map((p) => (
+    <div key={p.id} className="border p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+      <h2 className="text-xl font-semibold text-gray-800">{p.title}</h2>
+      <p className="text-gray-600 mt-2">{p.description}</p>
+      <p className="mt-2 text-blue-500">{p.upvotes} Upvotes</p>
+      <a href={`/portfolios/${p.id}`} className="mt-4 inline-block text-blue-600 hover:underline">
+        Details ansehen
+      </a>
+    </div>
+  ))}
+</div>
       )}
 
       <h1 className="text-3xl font-bold mt-8 mb-4">All Time Ranking</h1>
       {allError ? (
         <p>Fehler: {allError.message}</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {allTimePortfolios?.map((p) => (
-            <div key={p.id} className="border p-4 rounded">
-              <h2 className="text-xl font-semibold">{p.title}</h2>
-              <p>{p.description}</p>
-              <p>{p.upvotes} Upvotes</p>
-            </div>
-          ))}
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+  {newPortfolios?.map((p) => (
+    <div key={p.id} className="border p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+      <h2 className="text-xl font-semibold text-gray-800">{p.title}</h2>
+      <p className="text-gray-600 mt-2">{p.description}</p>
+      <p className="mt-2 text-blue-500">{p.upvotes} Upvotes</p>
+      <a href={`/portfolios/${p.id}`} className="mt-4 inline-block text-blue-600 hover:underline">
+        Details ansehen
+      </a>
+    </div>
+  ))}
+</div>
       )}
     </div>
   );
