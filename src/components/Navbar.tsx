@@ -28,7 +28,6 @@ export default function Navbar() {
       <div className="container mx-auto flex justify-between">
         <Link href="/" className="text-xl font-bold">Portfoliohunt</Link>
         <div>
-          <Link href="/portfolios" className="mr-4">Portfolios</Link>
           <Link href="/upload" className="mr-4">Upload</Link>
           {user ? (
             <button onClick={handleLogout} className="mr-4">Logout</button>
