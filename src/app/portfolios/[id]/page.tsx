@@ -2,15 +2,21 @@ import { supabase } from "../../../lib/supabase";
 import FeedbackForm from "../../../components/FeedbackForm";
 import Image from "next/image";
 
-export default async function PortfolioPage({ params }: { params: { id: string } }) {
+// Typen direkt definieren, ohne PageProps
+type Props = {
+  params: Promise<{ id: string }>; // params als Promise, da App Router async erwartet
+};
+
+export default async function PortfolioPage({ params }: Props) {
+  const resolvedParams = await params; // Promise auflösen
   const { data: portfolio, error } = await supabase
     .from("portfolios")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", resolvedParams.id)
     .single();
 
   if (error || !portfolio) {
-    return <div>Portfolio nicht gefunden!!!</div>;
+    return <div>Portfolio nicht gefunden!</div>;
   }
 
   return (
