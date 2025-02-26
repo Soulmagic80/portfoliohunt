@@ -21,11 +21,11 @@ export default function PortfolioCard({ portfolio, user, onUpvote }: PortfolioCa
   };
 
   return (
-    <div className="w-full h-auto p-2 rounded-lg bg-white border border-[#e8e8e8]">
+    <div className="w-full h-auto p-2 rounded-lg bg-white border border-[#e8e8e8] max-w-[800px]">
       {/* Zwei Bereiche nebeneinander, untereinander bei <672px */}
       <div className="flex flex-row flex-wrap gap-2">
         {/* Linker Bereich */}
-        <div className="w-full min-w-[340px] flex-1 min-w-[324px] min-h-[240px] bg-[#f3f3f3] p-2 rounded-sm">
+        <div className="w-full min-w-[340px] min-w-[340px] flex-1 min-w-[324px] min-h-[240px] bg-gray-100 p-2 rounded-sm">
           {/* Platzhalter für später (z. B. Bild) */}
         </div>
 

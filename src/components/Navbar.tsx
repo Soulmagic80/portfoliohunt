@@ -24,15 +24,15 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-gray-800 text-white p-4">
-      <div className="container mx-auto flex justify-between">
-        <Link href="/" className="text-xl font-bold">Portfoliohunt</Link>
-        <div>
-          <Link href="/upload" className="mr-4">Upload</Link>
+    <nav className="bg-white text-gray-900 pl-8 pr-8 pt-4 pb-4 border-b border-gray-200">
+      <div className="flex justify-between items-center">
+        <Link href="/" className="text-l font-Semibold">Portfoliohunt</Link>
+        <div className="space-x-4">
+          <Link href="/upload" className="hover:text-gray-700">Upload</Link>
           {user ? (
-            <button onClick={handleLogout} className="mr-4">Logout</button>
+            <button onClick={handleLogout} className="hover:text-gray-700">Logout</button>
           ) : (
-            <Link href="/login">Login</Link>
+            <Link href="/login" className="hover:text-gray-700">Login</Link>
           )}
         </div>
       </div>
