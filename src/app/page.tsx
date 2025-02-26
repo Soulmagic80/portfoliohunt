@@ -3,13 +3,13 @@ import { supabase } from "../lib/supabase";
 import { useState, useEffect } from "react";
 import PortfolioCard from "../components/PortfolioCard";
 import { Portfolio } from "../types";
-import { User } from "@supabase/supabase-js"; // User-Typ importieren
+import { User } from "@supabase/supabase-js";
 
 export default function Home() {
   const [activeFilter, setActiveFilter] = useState("new"); // "new" oder "all"
   const [newPortfolios, setNewPortfolios] = useState<Portfolio[]>([]);
   const [allTimePortfolios, setAllTimePortfolios] = useState<Portfolio[]>([]);
-  const [user, setUser] = useState<User | null>(null); // Genauer Typ für User
+  const [user, setUser] = useState<User | null>(null); // User für Auth
 
   // Daten und User holen
   useEffect(() => {
@@ -75,49 +75,30 @@ export default function Home() {
       {/* Titel */}
       <h1 className="text-4xl font-bold text-center mb-8">Portfoliohunt</h1>
 
-      {/* Filterleiste */}
-      <div>
-        {/* Dropdown für kleine Bildschirme */}
-        <div className="sm:hidden">
-          <label htmlFor="Tab" className="sr-only">Tab</label>
-          <select
-            id="Tab"
-            className="w-full rounded-md border-gray-200"
-            value={activeFilter}
-            onChange={(e) => setActiveFilter(e.target.value)}
-          >
-            <option value="new">New This Month</option>
-            <option value="all">All Time</option>
-          </select>
-        </div>
-
-        {/* Tabs für größere Bildschirme */}
-        <div className="hidden sm:block">
-          <nav className="flex gap-6" aria-label="Tabs">
-            <button
-              onClick={() => setActiveFilter("new")}
-              className={`shrink-0 rounded-lg p-2 text-sm font-medium ${
-                activeFilter === "new"
-                  ? "bg-sky-100 text-sky-600"
-                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-              }`}
-              aria-current={activeFilter === "new" ? "page" : undefined}
-            >
-              New This Month
-            </button>
-            <button
-              onClick={() => setActiveFilter("all")}
-              className={`shrink-0 rounded-lg p-2 text-sm font-medium ${
-                activeFilter === "all"
-                  ? "bg-sky-100 text-sky-600"
-                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-              }`}
-              aria-current={activeFilter === "all" ? "page" : undefined}
-            >
-              All Time
-            </button>
-          </nav>
-        </div>
+      {/* Segment Control */}
+      <div className="inline-flex h-9 w-full items-baseline justify-start rounded-lg bg-gray-100 p-1 sm:w-auto mb-6">
+        <button
+          type="button"
+          onClick={() => setActiveFilter("new")}
+          className={`group inline-flex items-center justify-center whitespace-nowrap py-2 font-semibold transition-all duration-300 ease-in-out min-w-[32px] text-xs h-7 w-full px-3 sm:w-auto ${
+            activeFilter === "new"
+              ? "rounded-md bg-white shadow text-slate-950"
+              : "bg-transparent text-slate-600 hover:text-blue-950"
+          }`}
+        >
+          New This Month
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveFilter("all")}
+          className={`group inline-flex items-center justify-center whitespace-nowrap py-2 font-semibold transition-all duration-300 ease-in-out min-w-[32px] text-xs h-7 w-full px-3 sm:w-auto ${
+            activeFilter === "all"
+              ? "rounded-md bg-white shadow text-slate-950"
+              : "bg-transparent text-slate-600 hover:text-blue-950"
+          }`}
+        >
+          All Time
+        </button>
       </div>
 
       {/* Portfolio-Listen */}
