@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import PortfolioCard from "../components/PortfolioCard";
 import { Portfolio } from "../types";
 import { User } from "@supabase/supabase-js";
-import Navbar from "../components/Navbar"; // Annahme: Deine Navbar-Komponente
 
 export default function Home() {
   const [activeFilter, setActiveFilter] = useState("new"); // "new" oder "all"
