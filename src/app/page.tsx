@@ -1,35 +1,60 @@
 "use client";
 import { supabase } from "../lib/supabase";
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import { Portfolio } from "../types"; // Typ importieren
+import PortfolioCard from "../components/PortfolioCard";
+import { Portfolio } from "../types";
 
 export default function Home() {
   const [activeFilter, setActiveFilter] = useState("new"); // "new" oder "all"
-  const [newPortfolios, setNewPortfolios] = useState<Portfolio[]>([]); // Portfolio-Typ
-  const [allTimePortfolios, setAllTimePortfolios] = useState<Portfolio[]>([]); // Portfolio-Typ
+  const [newPortfolios, setNewPortfolios] = useState<Portfolio[]>([]);
+  const [allTimePortfolios, setAllTimePortfolios] = useState<Portfolio[]>([]);
+  const [user, setUser] = useState<any>(null); // User für Auth
 
-  // Daten von Supabase holen
+  // Daten und User holen
   useEffect(() => {
-    async function fetchPortfolios() {
+    async function fetchData() {
+      // User prüfen
+      const { data: userData } = await supabase.auth.getUser();
+      setUser(userData.user);
+
       // New This Month: Letzte 30 Tage
       const { data: newData, error: newError } = await supabase
         .from("portfolios")
         .select("*")
         .gte("created_at", new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString())
-        .order("created_at", { ascending: false });
+        .order("upvotes", { ascending: false }); // Nach Upvotes sortieren
 
       // All Time Ranking
       const { data: allData, error: allError } = await supabase
         .from("portfolios")
         .select("*")
-        .order("upvotes", { ascending: false });
+        .order("upvotes", { ascending: false }); // Nach Upvotes sortieren
 
       if (!newError) setNewPortfolios(newData || []);
       if (!allError) setAllTimePortfolios(allData || []);
     }
-    fetchPortfolios();
+    fetchData();
   }, []);
+
+  // Upvote-Funktion
+  const handleUpvote = async (portfolioId: string) => {
+    const { data, error } = await supabase
+      .from("portfolios")
+      .update({ upvotes: supabase.rpc("increment", { row: "upvotes" }) })
+      .eq("id", portfolioId);
+
+    if (!error) {
+      // Listen aktualisieren
+      setNewPortfolios((prev) =>
+        prev.map((p) => (p.id === portfolioId ? { ...p, upvotes: p.upvotes + 1 } : p)).sort((a, b) => b.upvotes - a.upvotes)
+      );
+      setAllTimePortfolios((prev) =>
+        prev.map((p) => (p.id === portfolioId ? { ...p, upvotes: p.upvotes + 1 } : p)).sort((a, b) => b.upvotes - a.upvotes)
+      );
+    } else {
+      console.error("Upvote failed:", error.message);
+    }
+  };
 
   return (
     <div className="container mx-auto py-8">
@@ -86,27 +111,13 @@ export default function Home() {
         {activeFilter === "new" ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {newPortfolios.map((p) => (
-              <div key={p.id} className="border p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                <h2 className="text-xl font-semibold text-gray-800">{p.title}</h2>
-                <p className="text-gray-600 mt-2">{p.description}</p>
-                <p className="mt-2 text-blue-500">{p.upvotes} Upvotes</p>
-                <Link href={`/portfolios/${p.id}`} className="mt-2 text-blue-600 hover:underline">
-                  Details
-                </Link>
-              </div>
+              <PortfolioCard key={p.id} portfolio={p} user={user} onUpvote={handleUpvote} />
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {allTimePortfolios.map((p) => (
-              <div key={p.id} className="border p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                <h2 className="text-xl font-semibold text-gray-800">{p.title}</h2>
-                <p className="text-gray-600 mt-2">{p.description}</p>
-                <p className="mt-2 text-blue-500">{p.upvotes} Upvotes</p>
-                <Link href={`/portfolios/${p.id}`} className="mt-2 text-blue-600 hover:underline">
-                  Details
-                </Link>
-              </div>
+              <PortfolioCard key={p.id} portfolio={p} user={user} onUpvote={handleUpvote} />
             ))}
           </div>
         )}
