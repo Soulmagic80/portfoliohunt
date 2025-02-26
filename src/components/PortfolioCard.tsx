@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation"; // Für Redirect
 import { Portfolio } from "../types";
+import { User } from "@supabase/supabase-js"; // User-Typ importieren
 
 interface PortfolioCardProps {
   portfolio: Portfolio;
-  user: any; // Später genauer typisieren
+  user: User | null; // Genauer Typ
   onUpvote: (id: string) => void; // Callback für Upvote
 }
 

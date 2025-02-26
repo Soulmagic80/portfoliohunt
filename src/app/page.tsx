@@ -3,12 +3,13 @@ import { supabase } from "../lib/supabase";
 import { useState, useEffect } from "react";
 import PortfolioCard from "../components/PortfolioCard";
 import { Portfolio } from "../types";
+import { User } from "@supabase/supabase-js"; // User-Typ importieren
 
 export default function Home() {
   const [activeFilter, setActiveFilter] = useState("new"); // "new" oder "all"
   const [newPortfolios, setNewPortfolios] = useState<Portfolio[]>([]);
   const [allTimePortfolios, setAllTimePortfolios] = useState<Portfolio[]>([]);
-  const [user, setUser] = useState<any>(null); // User für Auth
+  const [user, setUser] = useState<User | null>(null); // Genauer Typ für User
 
   // Daten und User holen
   useEffect(() => {
@@ -22,13 +23,13 @@ export default function Home() {
         .from("portfolios")
         .select("*")
         .gte("created_at", new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString())
-        .order("upvotes", { ascending: false }); // Nach Upvotes sortieren
+        .order("upvotes", { ascending: false });
 
       // All Time Ranking
       const { data: allData, error: allError } = await supabase
         .from("portfolios")
         .select("*")
-        .order("upvotes", { ascending: false }); // Nach Upvotes sortieren
+        .order("upvotes", { ascending: false });
 
       if (!newError) setNewPortfolios(newData || []);
       if (!allError) setAllTimePortfolios(allData || []);
@@ -38,9 +39,22 @@ export default function Home() {
 
   // Upvote-Funktion
   const handleUpvote = async (portfolioId: string) => {
-    const { data, error } = await supabase
+    const { data: currentPortfolio, error: fetchError } = await supabase
       .from("portfolios")
-      .update({ upvotes: supabase.rpc("increment", { row: "upvotes" }) })
+      .select("upvotes")
+      .eq("id", portfolioId)
+      .single();
+
+    if (fetchError) {
+      console.error("Fetch failed:", fetchError.message);
+      return;
+    }
+
+    const newUpvotes = currentPortfolio.upvotes + 1;
+
+    const { error } = await supabase
+      .from("portfolios")
+      .update({ upvotes: newUpvotes })
       .eq("id", portfolioId);
 
     if (!error) {
