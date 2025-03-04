@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Portfolio } from "../types";
@@ -7,13 +8,15 @@ interface PortfolioCardProps {
   portfolio: Portfolio;
   user: User | null;
   onUpvote: (id: string) => void;
-  rank?: number; // Optionaler Rang
+  rank?: number;
 }
 
 export default function PortfolioCard({ portfolio, user, onUpvote, rank }: PortfolioCardProps) {
   const router = useRouter();
 
-  const handleUpvoteClick = () => {
+  const handleUpvoteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     if (user) {
       onUpvote(portfolio.id);
     } else {
@@ -22,8 +25,10 @@ export default function PortfolioCard({ portfolio, user, onUpvote, rank }: Portf
   };
 
   return (
-    <div className="w-[350px] h-[318px] p-3 bg-white rounded-lg aspect-[350/318] hover:bg-gray-100">
-      <div className="w-full h-[222px] bg-[#f3f3f3] rounded-lg aspect-[350/222]"></div>
+    <div className="w-full h-auto p-3 bg-white rounded-lg aspect-[350/318] hover:bg-gray-100">
+      <Link href={`/portfolios/${portfolio.id}`} className="block w-full rounded-lg">
+        <div className="w-full bg-[#fafafa] rounded-lg aspect-[350/222]"></div>
+      </Link>
       <div className="w-full h-[68px] mt-1 flex items-center gap-3">
         <span className="text-5xl font-inter font-semibold text-black">{rank || 2}</span>
         <div className="flex-1 flex flex-col">

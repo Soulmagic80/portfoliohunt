@@ -65,49 +65,46 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-row flex-1">
-      <main className="w-full bg-white p-10">
-        <h1 className="text-4xl font-bold mb-8">Portfoliohunt</h1>
-        <div className="flex w-full max-w-md rounded-lg bg-gray-100 p-1 mb-6">
-          <button
-            onClick={() => setActiveFilter("new")}
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-              activeFilter === "new" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            New This Month
-          </button>
-          <button
-            onClick={() => setActiveFilter("all")}
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-              activeFilter === "all" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            All Time
-          </button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {activeFilter === "new"
-            ? newPortfolios.map((p, index) => (
-                <PortfolioCard
-                  key={p.id}
-                  portfolio={p}
-                  user={user}
-                  onUpvote={handleUpvote}
-                  rank={index + 1} // Rang = Position, höchste Upvotes = 1
-                />
-              ))
-            : allTimePortfolios.map((p, index) => (
-                <PortfolioCard
-                  key={p.id}
-                  portfolio={p}
-                  user={user}
-                  onUpvote={handleUpvote}
-                  rank={index + 1} // Rang = Position, höchste Upvotes = 1
-                />
-              ))}
-        </div>
-      </main>
-    </div>
+    <main className="w-full bg-white p-10 text-left">
+      <div className="flex w-full max-w-md rounded-lg bg-gray-100 p-1 mb-6">
+        <button
+          onClick={() => setActiveFilter("new")}
+          className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
+            activeFilter === "new" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
+          }`}
+        >
+          New This Month
+        </button>
+        <button
+          onClick={() => setActiveFilter("all")}
+          className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
+            activeFilter === "all" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
+          }`}
+        >
+          All Time
+        </button>
+      </div>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-6">
+        {activeFilter === "new"
+          ? newPortfolios.map((p, index) => (
+              <PortfolioCard
+                key={p.id}
+                portfolio={p}
+                user={user}
+                onUpvote={handleUpvote}
+                rank={index + 1}
+              />
+            ))
+          : allTimePortfolios.map((p, index) => (
+              <PortfolioCard
+                key={p.id}
+                portfolio={p}
+                user={user}
+                onUpvote={handleUpvote}
+                rank={index + 1}
+              />
+            ))}
+      </div>
+    </main>
   );
 }
