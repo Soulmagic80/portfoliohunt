@@ -6,10 +6,10 @@ import { Portfolio } from "../types";
 import { User } from "@supabase/supabase-js";
 
 export default function Home() {
-  const [activeFilter, setActiveFilter] = useState("new"); // "new" oder "all"
+  const [activeFilter, setActiveFilter] = useState("new");
   const [newPortfolios, setNewPortfolios] = useState<Portfolio[]>([]);
   const [allTimePortfolios, setAllTimePortfolios] = useState<Portfolio[]>([]);
-  const [user, setUser] = useState<User | null>(null); // User für Auth
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -66,11 +66,8 @@ export default function Home() {
 
   return (
     <div className="flex flex-row flex-1">
-      {/* Hauptbereich */}
       <main className="w-full bg-white p-10 text-left">
         <h1 className="text-4xl font-bold mb-8">Portfoliohunt</h1>
-
-        {/* Segment Control */}
         <div className="flex w-full max-w-md rounded-lg bg-gray-100 p-1 mb-6">
           <button
             onClick={() => setActiveFilter("new")}
@@ -89,8 +86,6 @@ export default function Home() {
             All Time
           </button>
         </div>
-
-        {/* Portfolio-Karten im Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {activeFilter === "new"
             ? newPortfolios.map((p, index) => (
@@ -99,7 +94,7 @@ export default function Home() {
                   portfolio={p}
                   user={user}
                   onUpvote={handleUpvote}
-                  rank={index + 1}
+                  rank={index + 1} // Rang = Position, höchste Upvotes = 1
                 />
               ))
             : allTimePortfolios.map((p, index) => (
@@ -108,7 +103,7 @@ export default function Home() {
                   portfolio={p}
                   user={user}
                   onUpvote={handleUpvote}
-                  rank={index + 1}
+                  rank={index + 1} // Rang = Position, höchste Upvotes = 1
                 />
               ))}
         </div>
