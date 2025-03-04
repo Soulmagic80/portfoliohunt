@@ -2,6 +2,7 @@
 import { supabase } from "../lib/supabase";
 import { useState, useEffect } from "react";
 import PortfolioCard from "../components/PortfolioCard";
+import SegmentControl from "../components/SegmentControl";
 import { Portfolio } from "../types";
 import { User } from "@supabase/supabase-js";
 
@@ -66,24 +67,22 @@ export default function Home() {
 
   return (
     <main className="w-full bg-white p-10 text-left">
-      <div className="flex w-full max-w-md rounded-lg bg-gray-100 p-1 mb-6">
-        <button
-          onClick={() => setActiveFilter("new")}
-          className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-            activeFilter === "new" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
-          }`}
-        >
-          New This Month
-        </button>
-        <button
-          onClick={() => setActiveFilter("all")}
-          className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-            activeFilter === "all" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
-          }`}
-        >
-          All Time
-        </button>
+
+<div className="w-full h-[360px] flex flex-col items-center justify-center gap-5">
+        <h1 className="text-5xl font-inter font-bold leading-[110%] text-center uppercase max-w-[550px]">
+        Challenge the best, help everyone else
+        </h1>
+        <p className="text-lg font-inter font-light leading-[150%] text-center mt-4 text-gray-500 max-w-[540px]">
+        A new home for digital design portfolios. Upvote portfolios you like, rate other portfolios and get real feedback on your own.
+        </p>
       </div>
+
+
+
+   {/* Segment Control */}
+   <SegmentControl activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
+
+
       <div className="grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-6">
         {activeFilter === "new"
           ? newPortfolios.map((p, index) => (
