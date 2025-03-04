@@ -4,9 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { User } from "@supabase/supabase-js";
-import { Courier_Prime } from "next/font/google";
-
-const courierPrime = Courier_Prime({ subsets: ["latin"], weight: "400" });
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
@@ -28,9 +25,9 @@ export default function Navbar() {
 
   return (
     <nav className="h-[80px] px-[50px] bg-white text-black flex items-center justify-between border-b border-gray-200">
-      <Link href="/" className="text-xl">
-        <span className="font-inter font-semibold">portfolio</span>
-        <span className="font-courier-prime font-light"> hunt</span>
+      <Link href="/" className="text-xl flex space-x-1 pt-2">
+        <span className="font-inter font-semibold text-[20px] leading-none">portfolio</span>
+        <span className="font-courier-prime font-light text-[22px] leading-[1.15]">hunt</span>
       </Link>
       <div>
         <Link href="/upload" className="mr-4">Upload</Link>
