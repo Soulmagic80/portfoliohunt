@@ -7,60 +7,53 @@ interface PortfolioCardProps {
   portfolio: Portfolio;
   user: User | null;
   onUpvote: (id: string) => void;
+  rank?: number; // Optionaler Rang
 }
 
-export default function PortfolioCard({ portfolio, user, onUpvote }: PortfolioCardProps) {
+export default function PortfolioCard({ portfolio, user, onUpvote, rank }: PortfolioCardProps) {
   const router = useRouter();
 
   const handleUpvoteClick = () => {
     if (user) {
-      onUpvote(portfolio.id); // Eingeloggt: Upvote
+      onUpvote(portfolio.id);
     } else {
-      router.push("/login"); // Nicht eingeloggt: Redirect
+      router.push("/login");
     }
   };
 
   return (
-    <div className="w-full h-auto p-2 rounded-lg bg-white border border-[#e8e8e8] max-w-[800px]">
-      {/* Zwei Bereiche nebeneinander, untereinander bei <672px */}
-      <div className="flex flex-row flex-wrap gap-2">
-        {/* Linker Bereich */}
-        <div className="w-full min-w-[340px] min-w-[340px] flex-1 min-w-[324px] min-h-[240px] bg-gray-100 p-2 rounded-sm">
-          {/* Platzhalter für später (z. B. Bild) */}
-        </div>
-
-        {/* Rechter Bereich */}
-        <div className="w-full min-w-[340px] flex-1 min-w-[324px] min-h-[240px] bg-white p-4 flex flex-col justify-between text-left">
-          <div>
-            <h2 className="text-xl font-bold text-gray-800">{portfolio.title}</h2>
-            <p className="text-sm text-gray-600 mt-2">{portfolio.description}</p>
-            <Link href={`/portfolios/${portfolio.id}`} className="text-sm text-blue-600 hover:underline block mt-2">
-              Details
-            </Link>
-            {/* Tags untereinander */}
-            <div className="mt-2 flex flex-col gap-1">
-              <span className="bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded-full w-fit">UI</span>
-              <span className="bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded-full w-fit">UX</span>
-            </div>
-          </div>
-          <div className="flex justify-end items-end">
-            <button
-              onClick={handleUpvoteClick}
-              className="w-12 h-12 bg-white border border-[#878787] rounded-md flex flex-col items-center justify-center hover:bg-gray-50"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-700"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-              </svg>
-              <span className="text-sm text-gray-700">{portfolio.upvotes}</span>
-            </button>
+    <div className="w-[350px] h-[318px] p-3 bg-white rounded-lg aspect-[350/318] hover:bg-gray-100">
+      <div className="w-full h-[222px] bg-[#f3f3f3] rounded-lg aspect-[350/222]"></div>
+      <div className="w-full h-[68px] mt-1 flex items-center gap-3">
+        <span className="text-5xl font-inter font-semibold text-black">{rank || 2}</span>
+        <div className="flex-1 flex flex-col">
+          <h2 className="text-base font-inter font-medium text-black">{portfolio.title}</h2>
+          <div className="flex flex-row text-sm font-inter font-normal text-[#A1A1A1]">
+            <span>UI</span>
+            <span>・</span>
+            <span>Branding</span>
+            <span>・</span>
+            <span>Consulting</span>
           </div>
         </div>
+        <button
+          onClick={handleUpvoteClick}
+          className="w-11 h-11 bg-white border-2 border-[#000000] rounded-md flex flex-col items-center justify-center gap-0 hover:border-blue-500"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-3 w-3 text-black"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 2l-10 10h20z" />
+          </svg>
+          <span className="text-xs font-inter font-semibold text-black">{portfolio.upvotes}</span>
+        </button>
       </div>
     </div>
   );

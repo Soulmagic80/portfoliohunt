@@ -66,7 +66,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-row flex-1">
-      <main className="w-full bg-white p-10 text-left">
+      <main className="w-full bg-white p-10">
         <h1 className="text-4xl font-bold mb-8">Portfoliohunt</h1>
         <div className="flex w-full max-w-md rounded-lg bg-gray-100 p-1 mb-6">
           <button
