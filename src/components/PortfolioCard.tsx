@@ -25,7 +25,7 @@ export default function PortfolioCard({ portfolio, user, onUpvote, rank }: Portf
   };
 
   return (
-    <div className="w-full h-auto p-3 bg-white rounded-lg aspect-[350/318] hover:bg-gray-100">
+    <div className="w-full h-auto p-3 bg-white rounded-lg hover:bg-gray-100">
       <Link href={`/portfolios/${portfolio.id}`} className="block w-full rounded-lg">
         <div className="w-full bg-[#fafafa] rounded-lg aspect-[350/222]"></div>
       </Link>
