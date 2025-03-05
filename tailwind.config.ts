@@ -10,7 +10,6 @@ export default {
     extend: {
       fontFamily: {
         inter: ["Inter", "sans-serif"],
-        "courier-prime": ["Courier Prime", "monospace"],
       },
       colors: {
         background: "var(--background)",

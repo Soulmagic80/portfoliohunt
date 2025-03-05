@@ -10,7 +10,7 @@ interface SegmentControlProps {
 export default function SegmentControl({ activeFilter, setActiveFilter }: SegmentControlProps) {
   return (
     <div className="flex justify-center mb-10">
-      <div className="inline-flex h-9 w-[360px] items-baseline justify-start rounded-lg bg-gray-100 p-[3px]">
+      <div className="inline-flex h-9 w-[360px] items-baseline justify-start rounded-lg bg-[#F5F2F0] p-[3px]">
         <button
           type="button"
           onClick={() => setActiveFilter("new")}
