@@ -35,7 +35,7 @@ export default function Navbar() {
       <div className="flex gap-4">
         <Link
           href="/upload"
-          className="flex items-center gap-2 px-4 py-[5px] font-inter text-[13px] text-black bg-white border border-[#EBE5DF] rounded-lg hover:bg-gray-100"
+          className="flex items-center gap-2 px-4 py-[8px] font-inter text-[13px] text-black bg-white border border-[#EBE5DF] rounded-lg hover:bg-gray-100"
         >
           <Image src="/upload-icon.svg" alt="Upload Icon" width={12} height={12} />
           Upload
