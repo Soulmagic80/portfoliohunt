@@ -1,9 +1,9 @@
 "use client";
 import { supabase } from "../../../lib/supabase";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
-import { Portfolio } from "../../../types"; // Typ aus types importieren
+import { Portfolio } from "../../../types";
 
 interface Feedback {
   id: string;
@@ -41,11 +41,7 @@ export default function PortfolioDetail() {
     "Lacks originality",
   ];
 
-  useEffect(() => {
-    fetchPortfolio();
-  }, [id, fetchPortfolio]);
-
-  const fetchPortfolio = async () => {
+  const fetchPortfolio = useCallback(async () => {
     const { data: portfolioData, error: portfolioError } = await supabase
       .from("portfolios")
       .select("*")
@@ -64,7 +60,11 @@ export default function PortfolioDetail() {
       .eq("portfolio_id", id);
 
     if (!feedbackError) setFeedbacks(feedbackData || []);
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchPortfolio();
+  }, [id, fetchPortfolio]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +85,15 @@ export default function PortfolioDetail() {
     if (!error) {
       setFeedbacks((prev) => [
         ...prev,
-        { portfolio_id: id as string, user_id: userData.user.id, positive_feedback: positiveFeedback, negative_feedback: negativeFeedback, comment, id: "", created_at: new Date().toISOString() },
+        {
+          portfolio_id: id as string,
+          user_id: userData.user.id,
+          positive_feedback: positiveFeedback,
+          negative_feedback: negativeFeedback,
+          comment,
+          id: "",
+          created_at: new Date().toISOString(),
+        },
       ]);
       setPositiveFeedback([]);
       setNegativeFeedback([]);
