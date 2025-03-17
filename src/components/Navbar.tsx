@@ -25,17 +25,17 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="h-[72px] px-[50px] bg-white text-black flex items-center justify-between border-b border-[#EBE5DF]">
+    <nav className="h-[72px] px-[50px] bg-white text-black flex items-center justify-between border-b border-gray-600">
       {/* Logo links */}
       <Link href="/">
-        <Image src="/logo.svg" alt="Portfoliohunt Logo" width={126} height={0} style={{ height: "auto" }} />
+        <Image src="/logo.svg" alt="Portfoliohunt Logo" width={130} height={0} style={{ height: "auto" }} />
       </Link>
 
       {/* Buttons rechts */}
       <div className="flex gap-4">
         <Link
           href="/upload"
-          className="flex items-center gap-2 px-4 py-[8px] font-inter text-[13px] text-black bg-white border border-[#EBE5DF] rounded-lg hover:bg-gray-100"
+          className="flex items-center gap-2 px-4 py-[5px] font-inter text-[13px] text-black bg-white border border-[#EBE5DF] rounded-lg hover:bg-gray-100"
         >
           <Image src="/upload-icon.svg" alt="Upload Icon" width={12} height={12} />
           Upload
@@ -54,7 +54,7 @@ export default function Navbar() {
             className="flex items-center gap-2 px-4 py-[5px] font-inter text-[13px] text-black bg-[#F5F2F0] rounded-lg hover:bg-gray-200"
           >
             <Image src="/login-icon.svg" alt="Login Icon" width={12} height={12} />
-            Login
+            Sign In
           </Link>
         )}
       </div>
