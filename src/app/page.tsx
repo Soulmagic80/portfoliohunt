@@ -18,7 +18,7 @@ export default function Home() {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
-  const ITEMS_PER_PAGE = 6;
+  const ITEMS_PER_PAGE = 12;
 
   useEffect(() => {
     async function fetchData() {
@@ -45,10 +45,18 @@ export default function Home() {
 
     if (!error && data) {
       if (filter === "new") {
-        setNewPortfolios((prev) => [...prev, ...data]);
+        setNewPortfolios((prev) => {
+          const updated = [...prev, ...data];
+          const uniquePortfolios = Array.from(new Map(updated.map((p) => [p.id, p])).values());
+          return uniquePortfolios;
+        });
         setHasMoreNew(data.length === ITEMS_PER_PAGE);
       } else {
-        setAllTimePortfolios((prev) => [...prev, ...data]);
+        setAllTimePortfolios((prev) => {
+          const updated = [...prev, ...data];
+          const uniquePortfolios = Array.from(new Map(updated.map((p) => [p.id, p])).values());
+          return uniquePortfolios;
+        });
         setHasMoreAllTime(data.length === ITEMS_PER_PAGE);
       }
     }
@@ -57,34 +65,39 @@ export default function Home() {
   const handleUpvote = async (portfolioId: string) => {
     if (!user) return;
 
-    // Prüfe, ob User schon gevotet hat
-    const { data: existingVote, error: voteError } = await supabase
-      .from("upvotes")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("portfolio_id", portfolioId)
-      .single();
+    // Admin-Check (z. B. via email oder Rolle)
+    const isAdmin = user.email === "admin@example.com"; // Oder prüfe Rolle aus auth.users
 
-    if (voteError && voteError.code !== "PGRST116") {
-      console.error("Vote check failed:", voteError.message);
-      return;
+    if (!isAdmin) {
+      // Normale User: Prüfe, ob schon gevotet
+      const { data: existingVote, error: voteError } = await supabase
+        .from("upvotes")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("portfolio_id", portfolioId)
+        .single();
+
+      if (voteError && voteError.code !== "PGRST116") {
+        console.error("Vote check failed:", voteError.message);
+        return;
+      }
+
+      if (existingVote) {
+        console.log("User has already upvoted this portfolio");
+        return;
+      }
+
+      const { error: insertError } = await supabase
+        .from("upvotes")
+        .insert({ user_id: user.id, portfolio_id: portfolioId });
+
+      if (insertError) {
+        console.error("Insert vote failed:", insertError.message);
+        return;
+      }
     }
 
-    if (existingVote) {
-      console.log("User has already upvoted this portfolio");
-      return;
-    }
-
-    // Neuer Vote
-    const { error: insertError } = await supabase
-      .from("upvotes")
-      .insert({ user_id: user.id, portfolio_id: portfolioId });
-
-    if (insertError) {
-      console.error("Insert vote failed:", insertError.message);
-      return;
-    }
-
+    // Upvote erhöhen (für Admin immer, für User nur bei neuem Vote)
     const { data: currentPortfolio, error: fetchError } = await supabase
       .from("portfolios")
       .select("upvotes")
@@ -122,11 +135,13 @@ export default function Home() {
       (entries) => {
         if (entries[0].isIntersecting) {
           if (activeFilter === "new" && hasMoreNew) {
-            setNewPage((prev) => prev + 1);
-            fetchPortfolios("new", newPage + 1);
+            const nextPage = newPage + 1;
+            setNewPage(nextPage);
+            fetchPortfolios("new", nextPage);
           } else if (activeFilter === "all" && hasMoreAllTime) {
-            setAllTimePage((prev) => prev + 1);
-            fetchPortfolios("all", allTimePage + 1);
+            const nextPage = allTimePage + 1;
+            setAllTimePage(nextPage);
+            fetchPortfolios("all", nextPage);
           }
         }
       },
@@ -142,38 +157,38 @@ export default function Home() {
   }, [activeFilter, newPage, allTimePage, hasMoreNew, hasMoreAllTime]);
 
   return (
-    <main className="w-full bg-white p-4 text-left">
-
-<div className="w-full h-[360px] flex flex-col items-center justify-center gap-5">
+    <main className="w-full bg-white p-2 text-left">
+      <div className="w-full h-[360px] flex flex-col items-center justify-center gap-5">
         <h1 className="text-5xl font-inter font-bold leading-[110%] text-center uppercase max-w-[550px]">
-        Challenge the best, help everyone else
+          Challenge the best, help everyone else
         </h1>
         <p className="text-lg font-inter font-light leading-[150%] text-center mt-4 text-gray-500 max-w-[540px]">
-        A new home for digital design portfolios. Upvote portfolios you like, rate other portfolios and get real feedback on your own.
+          A new home for digital design portfolios. Upvote portfolios you like, rate other portfolios and get real feedback on your own.
         </p>
       </div>
+
       {/* Segment Control */}
       <SegmentControl activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
 
       {/* Portfolio-Listen */}
       <div className="px-10 pb-10 grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-6">
         {activeFilter === "new"
-          ? newPortfolios.map((p, index) => (
+          ? newPortfolios.map((p) => (
               <PortfolioCard
                 key={p.id}
                 portfolio={p}
                 user={user}
                 onUpvote={handleUpvote}
-                rank={index + 1}
+                rank={newPortfolios.indexOf(p) + 1}
               />
             ))
-          : allTimePortfolios.map((p, index) => (
+          : allTimePortfolios.map((p) => (
               <PortfolioCard
                 key={p.id}
                 portfolio={p}
                 user={user}
                 onUpvote={handleUpvote}
-                rank={index + 1}
+                rank={allTimePortfolios.indexOf(p) + 1}
               />
             ))}
         {(activeFilter === "new" ? hasMoreNew : hasMoreAllTime) && (

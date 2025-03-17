@@ -1,19 +1,37 @@
 "use client";
 import { supabase } from "../../lib/supabase";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function UploadPage() {
+export default function Upload() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [message, setMessage] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [tags, setTags] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError || !userData.user) {
-      setMessage("Bitte melde dich an, um hochzuladen!");
+      router.push("/login");
       return;
+    }
+
+    const isAdmin = userData.user.email === "admin@example.com";
+    const userId = isAdmin ? "550e8400-e29b-41d4-a716-446655440000" : userData.user.id; // Feste ID für Admin
+
+    let imagePath = null;
+    if (image) {
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("portfolio-images")
+        .upload(`${userId}/${Date.now()}-${image.name}`, image);
+      if (uploadError) {
+        console.error("Upload failed:", uploadError.message);
+        return;
+      }
+      imagePath = uploadData.path;
     }
 
     const { error } = await supabase
@@ -21,50 +39,63 @@ export default function UploadPage() {
       .insert({
         title,
         description,
-        image_url: imageUrl,
-        user_id: userData.user.id,
+        user_id: userId,
+        image: imagePath,
+        tags: tags.split(",").map((tag) => tag.trim()),
+        upvotes: 0,
       });
 
-    if (error) {
-      setMessage("Fehler: " + error.message);
+    if (!error) {
+      router.push("/");
     } else {
-      setMessage("Portfolio hochgeladen!");
-      setTitle("");
-      setDescription("");
-      setImageUrl("");
+      console.error("Insert failed:", error.message);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold mb-4">Portfolio hochladen</h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Upload Portfolio</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Titel"
-          className="border p-2 w-full rounded"
-          required
-        />
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Beschreibung"
-          className="border p-2 w-full rounded"
-        />
-        <input
-          type="text"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          placeholder="Bild-URL"
-          className="border p-2 w-full rounded"
-        />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded w-full">
-          Hochladen
+        <div>
+          <label className="block">Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block">Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full p-2 border rounded"
+          />
+        </div>
+        <div>
+          <label className="block">Image</label>
+          <input
+            type="file"
+            onChange={(e) => setImage(e.target.files?.[0] || null)}
+            className="w-full p-2 border rounded"
+          />
+        </div>
+        <div>
+          <label className="block">Tags (comma-separated)</label>
+          <input
+            type="text"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            className="w-full p-2 border rounded"
+            placeholder="e.g. UI, UX, Design"
+          />
+        </div>
+        <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          Upload
         </button>
       </form>
-      {message && <p className="mt-4 text-center">{message}</p>}
     </div>
   );
 }
