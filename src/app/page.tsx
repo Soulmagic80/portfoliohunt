@@ -109,12 +109,10 @@ export default function Home() {
   
     const newUpvotes = currentPortfolio.upvotes + 1;
   
-    const { data: updatedPortfolio, error: updateError } = await supabase
+    const { error: updateError } = await supabase
       .from("portfolios")
       .update({ upvotes: newUpvotes })
-      .eq("id", portfolioId)
-      .select()
-      .single();
+      .eq("id", portfolioId);
   
     if (updateError) {
       console.error("Upvote failed:", updateError.message);
@@ -143,10 +141,9 @@ export default function Home() {
       (p) => new Date(p.created_at) >= new Date(new Date().setMonth(new Date().getMonth() - 1))
     );
     const newRanked = allTimeRanked.map((p) => ({
-      ...p,
-      rank_new: p.created_at >= new Date(new Date().setMonth(new Date().getMonth() - 1))
-        ? newThisMonth.findIndex((np) => np.id === p.id) + 1
-        : null,
+      id: p.id,
+      rank_all_time: p.rank_all_time,
+      rank_new: newThisMonth.findIndex((np) => np.id === p.id) >= 0 ? newThisMonth.findIndex((np) => np.id === p.id) + 1 : null,
     }));
   
     // Ränge in DB aktualisieren
@@ -162,10 +159,10 @@ export default function Home() {
   
     // Lokale State-Aktualisierung
     setNewPortfolios((prev) =>
-      prev.map((p) => (p.id === portfolioId ? { ...p, upvotes: p.upvotes + 1 } : p)).sort((a, b) => b.upvotes - a.upvotes)
+      prev.map((p) => (p.id === portfolioId ? { ...p, upvotes: p.upvotes + 1, rank_new: newRanked.find(r => r.id === p.id)?.rank_new } : p)).sort((a, b) => b.upvotes - a.upvotes)
     );
     setAllTimePortfolios((prev) =>
-      prev.map((p) => (p.id === portfolioId ? { ...p, upvotes: p.upvotes + 1 } : p)).sort((a, b) => b.upvotes - a.upvotes)
+      prev.map((p) => (p.id === portfolioId ? { ...p, upvotes: p.upvotes + 1, rank_all_time: newRanked.find(r => r.id === p.id)?.rank_all_time } : p)).sort((a, b) => b.upvotes - a.upvotes)
     );
   };
 

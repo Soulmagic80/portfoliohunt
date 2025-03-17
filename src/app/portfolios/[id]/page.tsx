@@ -3,10 +3,21 @@ import { supabase } from "../../../lib/supabase";
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
+import { Portfolio } from "../../../types"; // Typ aus types importieren
+
+interface Feedback {
+  id: string;
+  portfolio_id: string;
+  user_id: string;
+  positive_feedback: string[];
+  negative_feedback: string[];
+  comment: string;
+  created_at: string;
+}
 
 export default function PortfolioDetail() {
-  const [portfolio, setPortfolio] = useState<any>(null);
-  const [feedbacks, setFeedbacks] = useState<any[]>([]);
+  const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [positiveFeedback, setPositiveFeedback] = useState<string[]>([]);
   const [negativeFeedback, setNegativeFeedback] = useState<string[]>([]);
   const [comment, setComment] = useState("");
@@ -32,7 +43,7 @@ export default function PortfolioDetail() {
 
   useEffect(() => {
     fetchPortfolio();
-  }, [id]);
+  }, [id, fetchPortfolio]);
 
   const fetchPortfolio = async () => {
     const { data: portfolioData, error: portfolioError } = await supabase
@@ -74,7 +85,7 @@ export default function PortfolioDetail() {
     if (!error) {
       setFeedbacks((prev) => [
         ...prev,
-        { portfolio_id: id, user_id: userData.user.id, positive_feedback: positiveFeedback, negative_feedback: negativeFeedback, comment },
+        { portfolio_id: id as string, user_id: userData.user.id, positive_feedback: positiveFeedback, negative_feedback: negativeFeedback, comment, id: "", created_at: new Date().toISOString() },
       ]);
       setPositiveFeedback([]);
       setNegativeFeedback([]);
