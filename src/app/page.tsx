@@ -64,68 +64,109 @@ export default function Home() {
 
   const handleUpvote = async (portfolioId: string) => {
     if (!user) return;
-
-    // Admin-Check (z. B. via email oder Rolle)
-    const isAdmin = user.email === "admin@example.com"; // Oder prüfe Rolle aus auth.users
-
+  
+    const isAdmin = user.email === "admin@example.com";
+  
     if (!isAdmin) {
-      // Normale User: Prüfe, ob schon gevotet
       const { data: existingVote, error: voteError } = await supabase
         .from("upvotes")
         .select("id")
         .eq("user_id", user.id)
         .eq("portfolio_id", portfolioId)
         .single();
-
+  
       if (voteError && voteError.code !== "PGRST116") {
         console.error("Vote check failed:", voteError.message);
         return;
       }
-
+  
       if (existingVote) {
         console.log("User has already upvoted this portfolio");
         return;
       }
-
+  
       const { error: insertError } = await supabase
         .from("upvotes")
         .insert({ user_id: user.id, portfolio_id: portfolioId });
-
+  
       if (insertError) {
         console.error("Insert vote failed:", insertError.message);
         return;
       }
     }
-
-    // Upvote erhöhen (für Admin immer, für User nur bei neuem Vote)
+  
+    // Upvote erhöhen
     const { data: currentPortfolio, error: fetchError } = await supabase
       .from("portfolios")
       .select("upvotes")
       .eq("id", portfolioId)
       .single();
-
+  
     if (fetchError) {
       console.error("Fetch failed:", fetchError.message);
       return;
     }
-
+  
     const newUpvotes = currentPortfolio.upvotes + 1;
-
-    const { error } = await supabase
+  
+    const { data: updatedPortfolio, error: updateError } = await supabase
       .from("portfolios")
       .update({ upvotes: newUpvotes })
-      .eq("id", portfolioId);
-
-    if (!error) {
-      setNewPortfolios((prev) =>
-        prev.map((p) => (p.id === portfolioId ? { ...p, upvotes: p.upvotes + 1 } : p)).sort((a, b) => b.upvotes - a.upvotes)
-      );
-      setAllTimePortfolios((prev) =>
-        prev.map((p) => (p.id === portfolioId ? { ...p, upvotes: p.upvotes + 1 } : p)).sort((a, b) => b.upvotes - a.upvotes)
-      );
-    } else {
-      console.error("Upvote failed:", error.message);
+      .eq("id", portfolioId)
+      .select()
+      .single();
+  
+    if (updateError) {
+      console.error("Upvote failed:", updateError.message);
+      return;
     }
+  
+    // Alle Portfolios laden und Ränge berechnen
+    const { data: allPortfolios, error: allError } = await supabase
+      .from("portfolios")
+      .select("*")
+      .order("upvotes", { ascending: false });
+  
+    if (allError) {
+      console.error("Fetch all portfolios failed:", allError.message);
+      return;
+    }
+  
+    // All Time Ränge
+    const allTimeRanked = allPortfolios.map((p, index) => ({
+      ...p,
+      rank_all_time: index + 1,
+    }));
+  
+    // New This Month Ränge
+    const newThisMonth = allPortfolios.filter(
+      (p) => new Date(p.created_at) >= new Date(new Date().setMonth(new Date().getMonth() - 1))
+    );
+    const newRanked = allTimeRanked.map((p) => ({
+      ...p,
+      rank_new: p.created_at >= new Date(new Date().setMonth(new Date().getMonth() - 1))
+        ? newThisMonth.findIndex((np) => np.id === p.id) + 1
+        : null,
+    }));
+  
+    // Ränge in DB aktualisieren
+    const { error: rankUpdateError } = await supabase.from("portfolios").upsert(newRanked, {
+      onConflict: "id",
+      ignoreDuplicates: false,
+    });
+  
+    if (rankUpdateError) {
+      console.error("Rank update failed:", rankUpdateError.message);
+      return;
+    }
+  
+    // Lokale State-Aktualisierung
+    setNewPortfolios((prev) =>
+      prev.map((p) => (p.id === portfolioId ? { ...p, upvotes: p.upvotes + 1 } : p)).sort((a, b) => b.upvotes - a.upvotes)
+    );
+    setAllTimePortfolios((prev) =>
+      prev.map((p) => (p.id === portfolioId ? { ...p, upvotes: p.upvotes + 1 } : p)).sort((a, b) => b.upvotes - a.upvotes)
+    );
   };
 
   useEffect(() => {
