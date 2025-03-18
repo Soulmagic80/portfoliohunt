@@ -18,8 +18,8 @@ interface Feedback {
 export default function PortfolioDetail() {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-  const [positiveFeedback, setPositiveFeedback] = useState<string[]>([]);
-  const [negativeFeedback, setNegativeFeedback] = useState<string[]>([]);
+  const [positiveFeedback, setPositiveFeedback] = useState<string>(""); // Einzelner String statt Array
+  const [negativeFeedback, setNegativeFeedback] = useState<string>(""); // Einzelner String statt Array
   const [comment, setComment] = useState("");
   const router = useRouter();
   const { id } = useParams();
@@ -77,8 +77,8 @@ export default function PortfolioDetail() {
     const { error } = await supabase.from("feedback").insert({
       portfolio_id: id,
       user_id: userData.user.id,
-      positive_feedback: positiveFeedback,
-      negative_feedback: negativeFeedback,
+      positive_feedback: positiveFeedback ? [positiveFeedback] : [], // Als Array speichern
+      negative_feedback: negativeFeedback ? [negativeFeedback] : [], // Als Array speichern
       comment,
     });
 
@@ -88,28 +88,26 @@ export default function PortfolioDetail() {
         {
           portfolio_id: id as string,
           user_id: userData.user.id,
-          positive_feedback: positiveFeedback,
-          negative_feedback: negativeFeedback,
+          positive_feedback: positiveFeedback ? [positiveFeedback] : [],
+          negative_feedback: negativeFeedback ? [negativeFeedback] : [],
           comment,
           id: "",
           created_at: new Date().toISOString(),
         },
       ]);
-      setPositiveFeedback([]);
-      setNegativeFeedback([]);
+      setPositiveFeedback("");
+      setNegativeFeedback("");
       setComment("");
-      fetchPortfolio(); // Refresh nach Feedback
+      fetchPortfolio();
     } else {
       console.error("Submit feedback failed:", error.message);
     }
   };
 
-  // Bild-URL aus Storage oder Fallback
   const imageSrc = portfolio?.image
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/portfolio-images/${portfolio.image}`
     : null;
 
-  // Top 3 Feedbacks berechnen
   const countFeedback = (type: "positive" | "negative") => {
     const feedbackMap = new Map<string, number>();
     feedbacks.forEach((f) => {
@@ -127,7 +125,6 @@ export default function PortfolioDetail() {
   const topPositive = countFeedback("positive");
   const topNegative = countFeedback("negative");
 
-  // Rang aus DB holen (primär rank_all_time, Fallback rank_new)
   const rank = portfolio?.rank_all_time || portfolio?.rank_new || "-";
 
   return (
@@ -177,16 +174,23 @@ export default function PortfolioDetail() {
               </>
             )}
           </ul>
-          <select
-            multiple
-            value={positiveFeedback}
-            onChange={(e) => setPositiveFeedback(Array.from(e.target.selectedOptions, (option) => option.value))}
-            className="w-full p-2 border rounded"
-          >
-            {positiveOptions.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
+          <div>
+            <label htmlFor="PositiveFeedback" className="block text-sm font-medium text-gray-900">
+              Positive Feedback
+            </label>
+            <select
+              name="PositiveFeedback"
+              id="PositiveFeedback"
+              value={positiveFeedback}
+              onChange={(e) => setPositiveFeedback(e.target.value)}
+              className="mt-1.5 w-full rounded-lg border-gray-300 text-gray-700 sm:text-sm"
+            >
+              <option value="">Please select</option>
+              {positiveOptions.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="md:w-1/2">
           <h2 className="text-xl font-inter font-semibold text-gray-900 mb-2">What could be better:</h2>
@@ -203,16 +207,23 @@ export default function PortfolioDetail() {
               </>
             )}
           </ul>
-          <select
-            multiple
-            value={negativeFeedback}
-            onChange={(e) => setNegativeFeedback(Array.from(e.target.selectedOptions, (option) => option.value))}
-            className="w-full p-2 border rounded"
-          >
-            {negativeOptions.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
+          <div>
+            <label htmlFor="NegativeFeedback" className="block text-sm font-medium text-gray-900">
+              Negative Feedback
+            </label>
+            <select
+              name="NegativeFeedback"
+              id="NegativeFeedback"
+              value={negativeFeedback}
+              onChange={(e) => setNegativeFeedback(e.target.value)}
+              className="mt-1.5 w-full rounded-lg border-gray-300 text-gray-700 sm:text-sm"
+            >
+              <option value="">Please select</option>
+              {negativeOptions.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 

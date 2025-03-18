@@ -198,7 +198,7 @@ export default function Home() {
     <main className="w-full bg-white p-2 text-left">
       <div className="w-full h-[360px] flex flex-col items-center justify-center gap-5">
         <h1 className="text-5xl font-inter font-bold leading-[110%] text-center uppercase max-w-[550px]">
-          Challenge the very best, help everyone else
+          Challenge the best, help everyone else
         </h1>
         <p className="text-lg font-inter font-light leading-[150%] text-center mt-4 text-gray-500 max-w-[540px]">
           A new home for digital design portfolios. Upvote portfolios you like, rate other portfolios and get real feedback on your own.
