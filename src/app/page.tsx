@@ -141,8 +141,7 @@ export default function Home() {
       (p) => new Date(p.created_at) >= new Date(new Date().setMonth(new Date().getMonth() - 1))
     );
     const newRanked = allTimeRanked.map((p) => ({
-      id: p.id,
-      rank_all_time: p.rank_all_time,
+      ...p, // Alle Felder übernehmen, inkl. title
       rank_new: newThisMonth.findIndex((np) => np.id === p.id) >= 0 ? newThisMonth.findIndex((np) => np.id === p.id) + 1 : null,
     }));
   
