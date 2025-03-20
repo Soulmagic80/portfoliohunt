@@ -34,7 +34,7 @@ export default function PortfolioCard({ portfolio, user, onUpvote, rank }: Portf
   const displayTags = portfolio.tags?.slice(0, 3) || [];
 
   return (
-    <div className="w-full h-auto p-3 bg-white rounded-lg hover:bg-[#F5F2F0]">
+    <div className="w-full h-auto p-3 bg-white rounded-lg hover:bg-[#fafafa]">
       <Link href={`/portfolios/${portfolio.id}`} className="block w-full rounded-lg">
         <div className="w-full rounded-lg aspect-[350/222] overflow-hidden">
           {imageSrc ? (
@@ -46,7 +46,7 @@ export default function PortfolioCard({ portfolio, user, onUpvote, rank }: Portf
               className="object-cover w-full h-full rounded-lg" // Border-Radius 8px
             />
           ) : (
-            <div className="w-full bg-[#fafafa] rounded-lg aspect-[350/222]"></div> // Platzhalter
+            <div className="w-full bg-[#F5F2F0] rounded-lg aspect-[350/222]"></div> // Platzhalter
           )}
         </div>
       </Link>

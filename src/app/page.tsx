@@ -194,13 +194,16 @@ export default function Home() {
   }, [activeFilter, newPage, allTimePage, hasMoreNew, hasMoreAllTime]);
 
   return (
-    <main className="w-full bg-white p-2 text-left">
-      <div className="w-full h-[360px] flex flex-col items-center justify-center gap-5">
-        <h1 className="text-5xl font-inter font-bold leading-[110%] text-center uppercase max-w-[550px]">
-          Challenge the best, help everyone else
+    <main className="w-full mx-auto bg-white">
+      <div className="w-full h-[380px] flex flex-col items-center justify-center gap-2">
+      <p className="pb-4 text-tremor-default text-[13px] text-tremor-brand uppercase font-normal leading-[150%] tracking-[0.03em] mt-4 mb-4 max-w-[540px]">
+          A new home for digital portfolios
+        </p>
+        <h1 className="text-4xl font-bold max-w-[700px] text-center text-balance tracking-[-0.03em] leading-[120%]">
+        Challenge the best, get valuable feedback, improve, and help others.
         </h1>
-        <p className="text-lg font-inter font-light leading-[150%] text-center mt-4 text-gray-500 max-w-[540px]">
-          A new home for digital design portfolios. Upvote portfolios you like, rate other portfolios and get real feedback on your own.
+        <p className="text-[17px] text-balance text-tremor-default leading-[150%] mt-6 text-gray-500 text-center max-w-[540px] pb-8">
+        Submit your portfolio, upvote, comment on, and rate other portfolios, and get real and helpful feedback on your own.
         </p>
       </div>
 
@@ -208,7 +211,7 @@ export default function Home() {
       <SegmentControl activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
 
       {/* Portfolio-Listen */}
-      <div className="px-10 pb-10 grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-6">
+      <div className="pt-4 pb-10 grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-6">
         {activeFilter === "new"
           ? newPortfolios.map((p) => (
               <PortfolioCard

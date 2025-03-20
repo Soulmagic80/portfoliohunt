@@ -11,35 +11,20 @@ interface Feedback {
   user_id: string;
   positive_feedback: string[];
   negative_feedback: string[];
-  comment: string;
+  comment: string | null;
   created_at: string;
 }
 
 export default function PortfolioDetail() {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-  const [positiveFeedback, setPositiveFeedback] = useState<string>(""); // Einzelner String statt Array
-  const [negativeFeedback, setNegativeFeedback] = useState<string>(""); // Einzelner String statt Array
+  const [positiveFeedback, setPositiveFeedback] = useState<string[]>([]); // Jetzt ein Array
+  const [negativeFeedback, setNegativeFeedback] = useState<string[]>([]); // Jetzt ein Array
   const [comment, setComment] = useState("");
+  const [positiveOptions, setPositiveOptions] = useState<string[]>([]);
+  const [negativeOptions, setNegativeOptions] = useState<string[]>([]);
   const router = useRouter();
   const { id } = useParams();
-
-  const positiveOptions = [
-    "Clean layout",
-    "Good UX",
-    "Strong Typography",
-    "Great Colors",
-    "Innovative Design",
-    "User-Friendly",
-  ];
-  const negativeOptions = [
-    "Needs more contrast",
-    "Cluttered layout",
-    "Weak typography",
-    "Color mismatch",
-    "Confusing navigation",
-    "Lacks originality",
-  ];
 
   const fetchPortfolio = useCallback(async () => {
     const { data: portfolioData, error: portfolioError } = await supabase
@@ -62,9 +47,34 @@ export default function PortfolioDetail() {
     if (!feedbackError) setFeedbacks(feedbackData || []);
   }, [id]);
 
+  const fetchFeedbackOptions = useCallback(async () => {
+    const { data: positiveData, error: positiveError } = await supabase
+      .from("positive_feedback_options")
+      .select("option_text");
+    if (!positiveError) setPositiveOptions(positiveData.map((d) => d.option_text));
+
+    const { data: negativeData, error: negativeError } = await supabase
+      .from("negative_feedback_options")
+      .select("option_text");
+    if (!negativeError) setNegativeOptions(negativeData.map((d) => d.option_text));
+  }, []);
+
   useEffect(() => {
     fetchPortfolio();
-  }, [id, fetchPortfolio]);
+    fetchFeedbackOptions();
+  }, [id, fetchPortfolio, fetchFeedbackOptions]);
+
+  const handlePositiveChange = (option: string) => {
+    setPositiveFeedback((prev) =>
+      prev.includes(option) ? prev.filter((item) => item !== option) : [...prev, option]
+    );
+  };
+
+  const handleNegativeChange = (option: string) => {
+    setNegativeFeedback((prev) =>
+      prev.includes(option) ? prev.filter((item) => item !== option) : [...prev, option]
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,13 +84,15 @@ export default function PortfolioDetail() {
       return;
     }
 
-    const { error } = await supabase.from("feedback").insert({
+    const feedbackData = {
       portfolio_id: id,
       user_id: userData.user.id,
-      positive_feedback: positiveFeedback ? [positiveFeedback] : [], // Als Array speichern
-      negative_feedback: negativeFeedback ? [negativeFeedback] : [], // Als Array speichern
-      comment,
-    });
+      positive_feedback: positiveFeedback, // Array direkt übernehmen
+      negative_feedback: negativeFeedback, // Array direkt übernehmen
+      ...(comment.trim() && { comment }),
+    };
+
+    const { error } = await supabase.from("feedback").insert(feedbackData);
 
     if (!error) {
       setFeedbacks((prev) => [
@@ -88,15 +100,15 @@ export default function PortfolioDetail() {
         {
           portfolio_id: id as string,
           user_id: userData.user.id,
-          positive_feedback: positiveFeedback ? [positiveFeedback] : [],
-          negative_feedback: negativeFeedback ? [negativeFeedback] : [],
-          comment,
+          positive_feedback: positiveFeedback,
+          negative_feedback: negativeFeedback,
+          comment: comment.trim() || null,
           id: "",
           created_at: new Date().toISOString(),
         },
       ]);
-      setPositiveFeedback("");
-      setNegativeFeedback("");
+      setPositiveFeedback([]);
+      setNegativeFeedback([]);
       setComment("");
       fetchPortfolio();
     } else {
@@ -116,16 +128,20 @@ export default function PortfolioDetail() {
         feedbackMap.set(item, (feedbackMap.get(item) || 0) + 1);
       });
     });
-    return Array.from(feedbackMap.entries())
+    const sortedFeedback = Array.from(feedbackMap.entries())
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 3)
       .map(([item]) => item);
+    return Array(3)
+      .fill("na")
+      .map((defaultValue, index) => sortedFeedback[index] || defaultValue)
+      .map((item, index) => `${index + 1}. ${item}`);
   };
 
   const topPositive = countFeedback("positive");
   const topNegative = countFeedback("negative");
 
   const rank = portfolio?.rank_all_time || portfolio?.rank_new || "-";
+  const isSubmitDisabled = positiveFeedback.length === 0 || negativeFeedback.length === 0; // Mindestens eine Auswahl pro Kategorie
 
   return (
     <div className="w-full max-w-[1280px] mx-auto p-6">
@@ -161,68 +177,60 @@ export default function PortfolioDetail() {
       <div className="flex flex-col md:flex-row gap-6 mb-8">
         <div className="md:w-1/2">
           <h2 className="text-xl font-inter font-semibold text-gray-900 mb-2">What users love:</h2>
-          <ul className="list-disc pl-5 mb-4">
-            {topPositive.length > 0 ? (
-              topPositive.map((item, index) => (
-                <li key={index} className="text-base font-inter text-gray-700">{item}</li>
-              ))
-            ) : (
-              <>
-                <li className="text-base font-inter text-gray-700">1. Clean layout</li>
-                <li className="text-base font-inter text-gray-700">2. Good UX</li>
-                <li className="text-base font-inter text-gray-700">3. Strong Typography</li>
-              </>
-            )}
+          <ul className="list-none pl-0 mb-4">
+            {topPositive.map((item, index) => (
+              <li key={index} className="text-base font-inter text-gray-700">{item}</li>
+            ))}
           </ul>
           <div>
-            <label htmlFor="PositiveFeedback" className="block text-sm font-medium text-gray-900">
-              Positive Feedback
+            <label className="block text-sm font-medium text-gray-900">
+              Positive Feedback <span className="text-red-500">*</span>
             </label>
-            <select
-              name="PositiveFeedback"
-              id="PositiveFeedback"
-              value={positiveFeedback}
-              onChange={(e) => setPositiveFeedback(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border-gray-300 text-gray-700 sm:text-sm"
-            >
-              <option value="">Please select</option>
+            <div className="mt-1.5 max-h-40 overflow-y-auto border rounded-lg p-2">
               {positiveOptions.map((option) => (
-                <option key={option} value={option}>{option}</option>
+                <div key={option} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={`positive-${option}`}
+                    checked={positiveFeedback.includes(option)}
+                    onChange={() => handlePositiveChange(option)}
+                    className="mr-2"
+                  />
+                  <label htmlFor={`positive-${option}`} className="text-sm text-gray-700">
+                    {option}
+                  </label>
+                </div>
               ))}
-            </select>
+            </div>
           </div>
         </div>
         <div className="md:w-1/2">
           <h2 className="text-xl font-inter font-semibold text-gray-900 mb-2">What could be better:</h2>
-          <ul className="list-disc pl-5 mb-4">
-            {topNegative.length > 0 ? (
-              topNegative.map((item, index) => (
-                <li key={index} className="text-base font-inter text-gray-700">{item}</li>
-              ))
-            ) : (
-              <>
-                <li className="text-base font-inter text-gray-700">1. Needs more contrast</li>
-                <li className="text-base font-inter text-gray-700">2. Cluttered layout</li>
-                <li className="text-base font-inter text-gray-700">3. Weak typography</li>
-              </>
-            )}
+          <ul className="list-none pl-0 mb-4">
+            {topNegative.map((item, index) => (
+              <li key={index} className="text-base font-inter text-gray-700">{item}</li>
+            ))}
           </ul>
           <div>
-            <label htmlFor="NegativeFeedback" className="block text-sm font-medium text-gray-900">
-              Negative Feedback
+            <label className="block text-sm font-medium text-gray-900">
+              Negative Feedback <span className="text-red-500">*</span>
             </label>
-            <select
-              name="NegativeFeedback"
-              id="NegativeFeedback"
-              value={negativeFeedback}
-              onChange={(e) => setNegativeFeedback(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border-gray-300 text-gray-700 sm:text-sm"
-            >
-              <option value="">Please select</option>
+            <div className="mt-1.5 max-h-40 overflow-y-auto border rounded-lg p-2">
               {negativeOptions.map((option) => (
-                <option key={option} value={option}>{option}</option>
+                <div key={option} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={`negative-${option}`}
+                    checked={negativeFeedback.includes(option)}
+                    onChange={() => handleNegativeChange(option)}
+                    className="mr-2"
+                  />
+                  <label htmlFor={`negative-${option}`} className="text-sm text-gray-700">
+                    {option}
+                  </label>
+                </div>
               ))}
-            </select>
+            </div>
           </div>
         </div>
       </div>
@@ -235,20 +243,28 @@ export default function PortfolioDetail() {
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             className="w-full p-2 border rounded h-32"
-            placeholder="Add your comment here..."
+            placeholder="Add your comment here (optional)..."
           />
-          <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          <button
+            type="submit"
+            className={`px-4 py-2 rounded text-white ${
+              isSubmitDisabled ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+            }`}
+            disabled={isSubmitDisabled}
+          >
             Submit
           </button>
         </form>
         <div className="mt-6">
           <h3 className="text-lg font-inter font-semibold text-gray-900 mb-2">Comments</h3>
-          {feedbacks.length > 0 ? (
-            feedbacks.map((f, index) => (
-              <div key={index} className="p-4 bg-gray-100 rounded-lg mb-2">
-                <p className="text-base font-inter text-gray-700">{f.comment}</p>
-              </div>
-            ))
+          {feedbacks.filter((f) => (f.comment || "").trim()).length > 0 ? (
+            feedbacks
+              .filter((f) => (f.comment || "").trim())
+              .map((f, index) => (
+                <div key={index} className="p-4 bg-gray-100 rounded-lg mb-2">
+                  <p className="text-base font-inter text-gray-700">{f.comment}</p>
+                </div>
+              ))
           ) : (
             <p className="text-gray-600">No comments yet.</p>
           )}

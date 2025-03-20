@@ -1,22 +1,18 @@
+"use client";
 import "./globals.css";
 import Navbar from "../components/Navbar";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-
-const inter = Inter({ subsets: ["latin"] });
-
-
-export const metadata: Metadata = {
-  title: "Portfoliohunt",
-  description: "A platform for designers",
-};
+import { usePathname } from "next/navigation";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
   return (
-    <html lang="de">
-      <body className={inter.className}>
-        <Navbar />
-        <main className="w-full">{children}</main>
+    <html lang="de" className="h-full">
+      <body className="h-full font-geist">
+        {pathname !== "/login" && <Navbar />}
+        <div className={`max-w-full mx-auto p-6 ${pathname !== "/login" ? "pt-16" : ""}`}>
+          {children}
+        </div>
       </body>
     </html>
   );
